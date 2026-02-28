@@ -93,6 +93,9 @@ At the baseline 10,000 document scale, FAISS (Exact Flat), FAISS (HNSW), Qdrant,
 
 This parity is crucial. At 10k scale, ANN operates in the exact-recall regime, which is why curves overlap. It proves there are no bugs in our pipeline and validates our embedding logic. With fairness proven, we scaled the benchmark to 100,000 documents to observe latency degradation.
 
+![Architectural Setup Phase](results/charts/feature_matrix.png)
+*Figure 1: High-level architectural capability mapping. Ratings are derived from empirical capability tests.*
+
 ![Latency vs Scale](results/charts/latency_vs_scale.png)
 
 As expected, Exact Brute Force (Elasticsearch `script_score` and FAISS Flat) scales linearly and poorly. *(Results reflect ES 7.x script_score behavior; ES 8.x native kNN would substantially reduce the vector latency gap).* Qdrant's HNSW graph keeps search latency fundamentally flat, proving the algorithmic superiority of ANN architecture for massive datasets.
@@ -196,8 +199,9 @@ Validating hybrid queries took mere moments using the **Elastic Serverless Playg
 
 To maintain research integrity, it is important to acknowledge the limitations of this benchmark:
 1. **ES Version Context**: Testing utilized standard `script_score` (ES 7.x style). Modern Elasticsearch 8.x/Serverless implementations of native `kNN` run significantly faster utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability and filtering behavior rather than pure ANN speed, where ES 8.x native kNN would significantly reduce the latency gap.
-2. **Single Embedding Model**: `BAAI/bge-small` dimensions (384) are highly optimized; 1536-dimensional OpenAI embeddings would shift latency profiles globally.
-3. **Scale Ceiling**: While 100k evaluates algorithmic limits, production deployments containing 10M+ documents require multi-node sharding variables not captured here.
+2. **FAISS Single-Node Limitation**: FAISS measurements reflect single-node in-memory execution; distributed FAISS deployments can achieve significantly higher aggregate throughput with custom sharding.
+3. **Single Embedding Model**: `BAAI/bge-small` dimensions (384) are highly optimized; 1536-dimensional OpenAI embeddings would shift latency profiles globally.
+4. **Scale Ceiling**: While 100k evaluates algorithmic limits, production deployments containing 10M+ documents require multi-node sharding variables not captured here.
 
 ---
 
@@ -205,7 +209,7 @@ To maintain research integrity, it is important to acknowledge the limitations o
 
 By grounding this benchmark in human `qrels` rather than synthetic noise, the illusions of vector search disappear. 
 
-Pure speed is easily achievable with FAISS, but scaling requires heavy distributed engineering. Modern vector databases like Qdrant provide excellent ANN scaling, but graph connectivity (`m`) introduces heavy storage overhead at high recall targets. Ultimately, for real-world RAG applications, the necessity of BM25 Hybrid Fusion and zero-penalty metadata filtering means **Elasticsearch** emerged as the most production-complete solution in this benchmark. 
+Pure speed is easily achievable with FAISS, but scaling requires heavy distributed engineering. Modern vector databases like Qdrant provide excellent ANN scaling, but graph connectivity (`m`) introduces heavy storage overhead at high recall targets. Ultimately, for real-world RAG applications, the necessity of BM25 Hybrid Fusion and zero-penalty metadata filtering means in this benchmark, **Elasticsearch provided the most production-complete feature set** for hybrid and filtered retrieval workloads.
 
 In modern RAG pipelines, this hybrid advantage directly translates to fewer hallucinations and more grounded responses. In multi-tenant RAG systems where strict metadata isolation is required, native pre-filtering becomes a correctness requirement, not just a performance optimization.
 

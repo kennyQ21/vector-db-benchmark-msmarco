@@ -434,8 +434,9 @@
     <p>Elasticsearch's inverted index discarded non-matching documents *before* calculating expensive vector math,
         ensuring a perfect 10 returned relevant results every time with virtually zero latency penalty.</p>
 
-    <img src="results/charts/feature_matrix.png" alt="Feature Comparison Heatmap">
-    <div class="caption">Capabilities and architecture feature mapping across engines.</div>
+    <img src="results/charts/feature_matrix.png" alt="Architectural Setup Phase">
+    <div class="caption">Figure 1: High-level architectural capability mapping. Ratings are derived from empirical
+        capability tests.</div>
 
     <h2>📈 Advanced Experiments & Graph Bottlenecks</h2>
     <p>What is the cost of HNSW speed? As Qdrant scaled to 100k, its Recall hit a ceiling of <strong>0.9119</strong>,
@@ -512,6 +513,9 @@
             utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability and
             filtering behavior rather than pure ANN speed, where ES 8.x native kNN would significantly reduce the
             latency gap.</li>
+        <li><strong>FAISS Single-Node Limitation:</strong> FAISS measurements reflect single-node in-memory execution;
+            distributed FAISS deployments can achieve significantly higher aggregate throughput with custom sharding.
+        </li>
         <li><strong>Single Embedding Model:</strong> <code>BAAI/bge-small</code> dimensions (384) are highly optimized;
             1536-dimensional OpenAI embeddings would shift latency profiles globally.</li>
         <li><strong>Scale Ceiling:</strong> While 100k evaluates algorithmic limits, production deployments containing
@@ -524,8 +528,8 @@
         engineering. Modern vector databases like Qdrant provide excellent ANN scaling, but graph connectivity
         (<code>m</code>) introduces heavy storage overhead at high recall targets.</p>
     <p>Ultimately, for real-world RAG applications, the necessity of BM25 Hybrid Fusion and zero-penalty metadata
-        filtering means <strong>Elasticsearch</strong> emerged as the most production-complete solution in this
-        benchmark. Don't
+        filtering means in this benchmark, <strong>Elasticsearch provided the most production-complete feature
+            set</strong> for hybrid and filtered retrieval workloads.</p>
     <p>Don't let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and
         fuse
         your results. The key takeaway is not that one engine universally wins, but that production retrieval quality
