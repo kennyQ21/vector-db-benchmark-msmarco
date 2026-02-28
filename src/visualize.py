@@ -158,7 +158,7 @@ def plot_latency_vs_scale():
     ax.set_xlabel("Dataset Size (passages)")
     ax.set_ylabel("P50 Latency (ms)")
     ax.set_title("Query Latency vs Dataset Scale")
-    ax.legend(loc="upper left", frameon=True, facecolor="#161b22", edgecolor="#30363d", framealpha=0.9)
+    ax.legend(loc="upper left", frameon=True, facecolor="#161b22", edgecolor="#30363d", framealpha=1.0)
     ax.grid(True, linestyle="--")
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{int(x/1000)}k"))
 
@@ -197,7 +197,7 @@ def plot_pareto_frontier(advanced_data: dict):
     plt.title("HNSW Pareto Frontier at 100k Scale\nLatency vs Recall Tradeoff", pad=20, fontweight="bold")
     plt.xlabel("P50 Latency (ms)", fontweight="bold")
     plt.ylabel("Recall@10", fontweight="bold")
-    plt.legend(loc="lower left", frameon=True, shadow=True, fancybox=True, framealpha=0.9)
+    plt.legend(loc="lower left", frameon=True, facecolor="white", edgecolor="#cccccc", framealpha=1.0)
     plt.tight_layout()
     save_chart(fig, "pareto_frontier_qdrant")
 
@@ -234,7 +234,7 @@ def plot_recall_at_k(advanced_data: dict):
     plt.xticks(k_values, labels=[str(k) for k in k_values])
     plt.ylim(0.2, 1.05)
     plt.grid(True, which="both", ls="-", alpha=0.2)
-    plt.legend(loc="lower right", frameon=True, shadow=True, fancybox=True, framealpha=0.9)
+    plt.legend(loc="lower right", frameon=True, facecolor="white", edgecolor="#cccccc", framealpha=1.0)
     
     plt.tight_layout()
     save_chart(fig, "recall_at_k_curves")
@@ -273,7 +273,7 @@ def plot_concurrency(advanced_data: dict):
     plt.ylim(0, max(qps) * 1.2)
     
     plt.axhline(y=max(qps), color='r', linestyle='--', alpha=0.3, label=f"Saturation: ~{int(max(qps))} QPS")
-    plt.legend(loc="lower right", frameon=True, framealpha=0.9, shadow=True)
+    plt.legend(loc="lower right", frameon=True, facecolor="white", edgecolor="#cccccc", framealpha=1.0)
     
     plt.tight_layout()
     save_chart(fig, "concurrency_scaling")
