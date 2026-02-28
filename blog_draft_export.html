@@ -266,8 +266,10 @@
         </li>
         <li><strong>MRR@10:</strong> Mean Reciprocal Rank, proving how <em>high up</em> the relevant document appeared.
         </li>
-        <li><strong>P50/P95 Latency:</strong> Measured strictly in milliseconds.</li>
-        <li><strong>Indexing Throughput:</strong> Ingest speed per second.</li>
+        <li><strong>P50/P95 Latency</strong>: Measured in milliseconds.</li>
+        <li><strong>Indexing Throughput</strong>: Ingest speed per second. <em>(Note: FAISS throughput reflects
+                in-memory vector insertion and is not directly comparable to persistent database ingestion throughput
+                like Qdrant/Elasticsearch).</em></li>
     </ul>
 
     <h2>🏗️ 5. System Architecture</h2>
@@ -434,8 +436,9 @@
     <p>What is the cost of HNSW speed? As Qdrant scaled to 100k, its Recall hit a ceiling of <strong>0.9119</strong>,
         even with extreme <code>ef_search</code> values.</p>
     <p><strong>This plateau persisted even as ef_search increased 32×, suggesting the dominant bottleneck is likely
-            graph connectivity (m=16), though embedding separability and dataset difficulty may also
-            contribute.</strong></p>
+            graph connectivity (m=16), though embedding separability and dataset difficulty may also contribute. We
+            verified candidate expansion counts during search to confirm ef_search was correctly applied; the flat curve
+            indicates structural graph limits rather than insufficient search effort.</strong></p>
 
     <img src="results/charts/pareto_frontier_qdrant.png" alt="HNSW Pareto Frontier">
     <div class="caption">Qdrant's Pareto tradeoff curve showing the bottleneck shift between m=16 and m=32 at 100k
@@ -499,9 +502,10 @@
     <h2>⚠️ Limitations</h2>
     <p>To maintain research integrity, it is important to acknowledge the limitations of this benchmark:</p>
     <ol>
-        <li><strong>ES Version Context:</strong> Testing utilized standard <code>script_score</code> (ES 7.x style).
+        <li><strong>ES Version Context</strong>: Testing utilized standard <code>script_score</code> (ES 7.x style).
             Modern Elasticsearch 8.x/Serverless implementations of native <code>kNN</code> run significantly faster
-            utilizing Lucene's modern HNSW implementations.</li>
+            utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability
+            rather than pure ANN speed.</li>
         <li><strong>Single Embedding Model:</strong> <code>BAAI/bge-small</code> dimensions (384) are highly optimized;
             1536-dimensional OpenAI embeddings would shift latency profiles globally.</li>
         <li><strong>Scale Ceiling:</strong> While 100k evaluates algorithmic limits, production deployments containing
@@ -519,7 +523,9 @@
         let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and fuse
         your results.</p>
     <p><strong>In modern RAG pipelines, this hybrid advantage directly translates to fewer hallucinations and more
-            grounded responses.</strong></p>
+            grounded
+            responses. In multi-tenant RAG systems where strict metadata isolation is required, native pre-filtering
+            becomes a correctness requirement, not just a performance optimization.</strong></p>
 
     <h2>🔗 Reproducibility</h2>
     <p>I strongly believe all benchmarks should be auditable. <strong>All scripts, configs, and raw JSON outputs are
