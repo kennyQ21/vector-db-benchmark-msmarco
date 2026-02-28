@@ -33,7 +33,9 @@ This study bridges the gap between pure academic math (FAISS) and enterprise pro
 
 ## 🧪 4. Experimental Design
 
-To ensure this benchmark evaluates true retrieval capability—not just speed—I built a rigorous pipeline. All experiments were executed locally on Apple Silicon with deterministic seeds and cached embeddings to ensure reproducibility.
+To ensure this benchmark evaluates true retrieval capability—not just speed—I built a rigorous pipeline. All experiments were executed locally with deterministic seeds and cached embeddings to ensure reproducibility.
+
+**Hardware**: Apple M2 (8-Core CPU, 8-Core GPU, 8 GB RAM), local single-node setup.
 
 ### 4.1 Dataset
 I used the **MS MARCO Passage Ranking** dataset, created by Microsoft for deep learning research. Crucially, I mapped passages to actual human-annotated `qrels` (query relevance labels). We evaluated performance at 3 distinct scales: **10k, 50k, and 100k subsets**.
@@ -157,7 +159,7 @@ Elasticsearch's inverted index discarded non-matching documents *before* calcula
 
 What is the cost of HNSW speed? As Qdrant scaled to 100k, its Recall hit a ceiling of **0.9119**, even with extreme `ef_search` values.
 
-This plateau persisted even as ef_search increased 32×, suggesting the dominant bottleneck is likely graph connectivity (m=16), though embedding separability and dataset difficulty may also contribute. We verified candidate expansion counts during search to confirm ef_search was correctly applied; the flat curve indicates structural graph limits rather than insufficient search effort.
+This plateau persisted even as ef_search increased 32×; our results strongly suggest graph connectivity (m) is the dominant limiting factor, though embedding separability and dataset difficulty may also contribute. We verified candidate expansion counts during search to confirm ef_search was correctly applied; the flat curve indicates structural graph limits rather than insufficient search effort.
 
 ![HNSW Pareto Frontier](results/charts/pareto_frontier_qdrant.png)
 
@@ -193,7 +195,7 @@ Validating hybrid queries took mere moments using the **Elastic Serverless Playg
 ## ⚠️ Limitations
 
 To maintain research integrity, it is important to acknowledge the limitations of this benchmark:
-1. **ES Version Context**: Testing utilized standard `script_score` (ES 7.x style). Modern Elasticsearch 8.x/Serverless implementations of native `kNN` run significantly faster utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability rather than pure ANN speed.
+1. **ES Version Context**: Testing utilized standard `script_score` (ES 7.x style). Modern Elasticsearch 8.x/Serverless implementations of native `kNN` run significantly faster utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability and filtering behavior rather than pure ANN speed, where ES 8.x native kNN would significantly reduce the latency gap.
 2. **Single Embedding Model**: `BAAI/bge-small` dimensions (384) are highly optimized; 1536-dimensional OpenAI embeddings would shift latency profiles globally.
 3. **Scale Ceiling**: While 100k evaluates algorithmic limits, production deployments containing 10M+ documents require multi-node sharding variables not captured here.
 
@@ -207,7 +209,7 @@ Pure speed is easily achievable with FAISS, but scaling requires heavy distribut
 
 In modern RAG pipelines, this hybrid advantage directly translates to fewer hallucinations and more grounded responses. In multi-tenant RAG systems where strict metadata isolation is required, native pre-filtering becomes a correctness requirement, not just a performance optimization.
 
-Don't let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and fuse your results.
+Don't let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and fuse your results. The key takeaway is not that one engine universally wins, but that production retrieval quality depends heavily on hybrid capability and filtering correctness — dimensions often ignored in toy vector benchmarks.
 
 ---
 
@@ -215,6 +217,7 @@ Don't let arbitrary millisecond races dictate your stack. Measure ground-truth r
 
 I strongly believe all benchmarks should be auditable. All scripts, configs, and raw JSON outputs are fully reproducible. The full source code orchestrator, config, and exact MS MARCO processing scripts are available in the project repository.
 * **Deterministic Seed**: Python Random `seed=42` used.
+* **HNSW Graph Generation**: Fixed random seeds used for consistent HNSW construction across trials.
 * **Requirements**: `faiss-cpu`, `qdrant-client`, `elasticsearch`, `numpy`, `pandas`.
 
 ---

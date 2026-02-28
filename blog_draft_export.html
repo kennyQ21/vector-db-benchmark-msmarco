@@ -222,9 +222,13 @@
         crown the library with the lowest millisecond latency the "winner."</p>
     <p>But production engineering teams struggle because toy benchmarks ignore reality:</p>
     <ul>
-        <li><strong>The Ground Truth Problem:</strong> Random vectors don't prove semantic relevance.</li>
-        <li><strong>The Hybrid Gap:</strong> AI models struggle with specific acronyms; you need keyword search
-            fallback.</li>
+        <li><strong>Deterministic Seed:</strong> Python Random <code>seed=42</code> used.</li>
+        <li><strong>HNSW Graph Generation:</strong> Fixed random seeds used for consistent HNSW construction across
+            trials.</li>
+        <li><strong>Requirements:</strong> <code>faiss-cpu</code>, <code>qdrant-client</code>,
+            <code>elasticsearch</code>,
+            <code>numpy</code>, <code>pandas</code>.
+        </li>
         <li><strong>The Filtering Dilemma:</strong> In production, you almost always filter by tenant ID or category
             before searching.</li>
         <li><strong>The Scale Ceiling:</strong> In-memory speeds look great at 10k vectors, but what happens to Graph
@@ -235,8 +239,10 @@
 
     <h2>🧪 4. Experimental Design</h2>
     <p>To ensure this benchmark evaluates true retrieval capability—not just speed—I built a rigorous pipeline. All
-        experiments were executed locally on Apple Silicon with deterministic seeds and cached embeddings to ensure
-        reproducibility.</p>
+        experiments were executed locally with deterministic seeds and cached embeddings to
+        ensure reproducibility.</p>
+
+    <p><strong>Hardware:</strong> Apple M2 (8-Core CPU, 8-Core GPU, 8 GB RAM), local single-node setup.</p>
 
     <h3>4.1 Dataset</h3>
     <p>I used the <strong>MS MARCO Passage Ranking</strong> dataset, created by Microsoft for deep learning research.
@@ -434,10 +440,10 @@
     <h2>📈 Advanced Experiments & Graph Bottlenecks</h2>
     <p>What is the cost of HNSW speed? As Qdrant scaled to 100k, its Recall hit a ceiling of <strong>0.9119</strong>,
         even with extreme <code>ef_search</code> values.</p>
-    <p><strong>This plateau persisted even as ef_search increased 32×, suggesting the dominant bottleneck is likely
-            graph connectivity (m=16), though embedding separability and dataset difficulty may also contribute. We
-            verified candidate expansion counts during search to confirm ef_search was correctly applied; the flat curve
-            indicates structural graph limits rather than insufficient search effort.</strong></p>
+    <p><strong>This plateau persisted even as ef_search increased 32×; our results strongly suggest graph connectivity
+            (m) is the dominant limiting factor, though embedding separability and dataset difficulty may also
+            contribute. We verified candidate expansion counts during search to confirm ef_search was correctly applied;
+            the flat curve indicates structural graph limits rather than insufficient search effort.</strong></p>
 
     <img src="results/charts/pareto_frontier_qdrant.png" alt="HNSW Pareto Frontier">
     <div class="caption">Qdrant's Pareto tradeoff curve showing the bottleneck shift between m=16 and m=32 at 100k
@@ -503,8 +509,9 @@
     <ol>
         <li><strong>ES Version Context</strong>: Testing utilized standard <code>script_score</code> (ES 7.x style).
             Modern Elasticsearch 8.x/Serverless implementations of native <code>kNN</code> run significantly faster
-            utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability
-            rather than pure ANN speed.</li>
+            utilizing Lucene's modern HNSW implementations. This benchmark intentionally evaluates hybrid capability and
+            filtering behavior rather than pure ANN speed, where ES 8.x native kNN would significantly reduce the
+            latency gap.</li>
         <li><strong>Single Embedding Model:</strong> <code>BAAI/bge-small</code> dimensions (384) are highly optimized;
             1536-dimensional OpenAI embeddings would shift latency profiles globally.</li>
         <li><strong>Scale Ceiling:</strong> While 100k evaluates algorithmic limits, production deployments containing
@@ -519,8 +526,11 @@
     <p>Ultimately, for real-world RAG applications, the necessity of BM25 Hybrid Fusion and zero-penalty metadata
         filtering means <strong>Elasticsearch</strong> emerged as the most production-complete solution in this
         benchmark. Don't
-        let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and fuse
-        your results.</p>
+    <p>Don't let arbitrary millisecond races dictate your stack. Measure ground-truth recall, filter aggressively, and
+        fuse
+        your results. The key takeaway is not that one engine universally wins, but that production retrieval quality
+        depends heavily on hybrid capability and filtering correctness — dimensions often ignored in toy vector
+        benchmarks.</p>
     <p><strong>In modern RAG pipelines, this hybrid advantage directly translates to fewer hallucinations and more
             grounded
             responses. In multi-tenant RAG systems where strict metadata isolation is required, native pre-filtering
