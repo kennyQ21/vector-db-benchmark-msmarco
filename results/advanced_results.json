@@ -1,0 +1,310 @@
+{
+  "qdrant_ef_sweep": [
+    {
+      "ef_search": 32,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 3.55,
+      "latency_p95_ms": 4.14
+    },
+    {
+      "ef_search": 64,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 3.56,
+      "latency_p95_ms": 3.86
+    },
+    {
+      "ef_search": 128,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 3.76,
+      "latency_p95_ms": 4.2
+    },
+    {
+      "ef_search": 256,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 3.76,
+      "latency_p95_ms": 4.79
+    }
+  ],
+  "faiss_hnsw": [
+    {
+      "engine": "FAISS-Flat",
+      "index_time_sec": 0.004,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 0.28,
+      "latency_p95_ms": 0.3
+    },
+    {
+      "engine": "FAISS-HNSW-16",
+      "index_time_sec": 0.304,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 0.05,
+      "latency_p95_ms": 0.06
+    },
+    {
+      "engine": "FAISS-HNSW-32",
+      "index_time_sec": 0.329,
+      "recall_at_10": 0.9764,
+      "latency_p50_ms": 0.05,
+      "latency_p95_ms": 0.07
+    }
+  ],
+  "recall_at_k": {
+    "FAISS-Flat": {
+      "1": 0.3406,
+      "5": 0.8587,
+      "10": 0.9764,
+      "50": 0.9964,
+      "100": 0.9964
+    },
+    "Qdrant": {
+      "1": 0.3406,
+      "5": 0.8587,
+      "10": 0.9764,
+      "50": 0.9964,
+      "100": 0.9964
+    },
+    "ES-Vector": {
+      "1": 0.3406,
+      "5": 0.8587,
+      "10": 0.9764,
+      "50": 0.9964,
+      "100": 0.9964
+    }
+  },
+  "qdrant_disk": {
+    "num_vectors": 10000,
+    "dim": 384,
+    "raw_vectors_mb": 14.6,
+    "disk_usage_mb": 39.5,
+    "process_rss_mb": 105.4,
+    "overhead_ratio": 2.69
+  },
+  "concurrency": [
+    {
+      "workers": 1,
+      "throughput_qps": 3419.6,
+      "latency_p50_ms": 0.29,
+      "latency_p95_ms": 0.31,
+      "wall_time_sec": 0.03
+    },
+    {
+      "workers": 4,
+      "throughput_qps": 9705.9,
+      "latency_p50_ms": 0.31,
+      "latency_p95_ms": 0.66,
+      "wall_time_sec": 0.01
+    },
+    {
+      "workers": 8,
+      "throughput_qps": 9495.0,
+      "latency_p50_ms": 0.47,
+      "latency_p95_ms": 1.6,
+      "wall_time_sec": 0.01
+    }
+  ],
+  "qdrant_ef_100k": [
+    {
+      "ef_search": 16,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 38.13,
+      "latency_p95_ms": 67.0
+    },
+    {
+      "ef_search": 32,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 36.93,
+      "latency_p95_ms": 51.48
+    },
+    {
+      "ef_search": 64,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 38.38,
+      "latency_p95_ms": 58.18
+    },
+    {
+      "ef_search": 128,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 39.03,
+      "latency_p95_ms": 70.44
+    },
+    {
+      "ef_search": 256,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 38.14,
+      "latency_p95_ms": 57.48
+    },
+    {
+      "ef_search": 512,
+      "recall_at_10": 0.9119,
+      "latency_p50_ms": 40.16,
+      "latency_p95_ms": 100.44
+    }
+  ],
+  "recall_at_k_hnsw": {
+    "FAISS-Flat": {
+      "1": 0.3406,
+      "5": 0.8587,
+      "10": 0.9764,
+      "50": 0.9964,
+      "100": 0.9964
+    },
+    "FAISS-HNSW": {
+      "1": 0.3406,
+      "5": 0.8587,
+      "10": 0.9764,
+      "50": 0.9964,
+      "100": 0.9964
+    }
+  },
+  "failure_cases": {
+    "vector_wins": [
+      {
+        "query": "how much protein should you eat per day",
+        "relevant_ids": [
+          1569498098
+        ],
+        "vector_found": true,
+        "bm25_found": false,
+        "hybrid_found": true
+      },
+      {
+        "query": "how long does it take to get a master degree in teaching in college",
+        "relevant_ids": [
+          189852135
+        ],
+        "vector_found": true,
+        "bm25_found": false,
+        "hybrid_found": true
+      },
+      {
+        "query": "average texas ag teacher salary",
+        "relevant_ids": [
+          151403450
+        ],
+        "vector_found": true,
+        "bm25_found": false,
+        "hybrid_found": true
+      }
+    ],
+    "bm25_wins": [
+      {
+        "query": "how much sugar should be consumed in a day",
+        "relevant_ids": [
+          2042989810
+        ],
+        "vector_found": false,
+        "bm25_found": true,
+        "hybrid_found": false
+      },
+      {
+        "query": "why is inhalation an active process",
+        "relevant_ids": [
+          1601195129
+        ],
+        "vector_found": false,
+        "bm25_found": true,
+        "hybrid_found": false
+      }
+    ],
+    "hybrid_wins": []
+  },
+  "qdrant_m_comparison_100k": {
+    "m16": [
+      {
+        "m": 16,
+        "ef_search": 16,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 38.35,
+        "latency_p95_ms": 67.37
+      },
+      {
+        "m": 16,
+        "ef_search": 32,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 38.17,
+        "latency_p95_ms": 50.09
+      },
+      {
+        "m": 16,
+        "ef_search": 64,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 36.65,
+        "latency_p95_ms": 46.36
+      },
+      {
+        "m": 16,
+        "ef_search": 128,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 35.72,
+        "latency_p95_ms": 44.55
+      },
+      {
+        "m": 16,
+        "ef_search": 256,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 35.89,
+        "latency_p95_ms": 43.52
+      }
+    ],
+    "m32": [
+      {
+        "m": 32,
+        "ef_search": 16,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 35.5,
+        "latency_p95_ms": 42.62
+      },
+      {
+        "m": 32,
+        "ef_search": 32,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 35.59,
+        "latency_p95_ms": 43.7
+      },
+      {
+        "m": 32,
+        "ef_search": 64,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 36.99,
+        "latency_p95_ms": 55.34
+      },
+      {
+        "m": 32,
+        "ef_search": 128,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 37.07,
+        "latency_p95_ms": 53.83
+      },
+      {
+        "m": 32,
+        "ef_search": 256,
+        "recall_at_10": 0.9119,
+        "latency_p50_ms": 37.84,
+        "latency_p95_ms": 49.0
+      }
+    ]
+  },
+  "hybrid_confusion": {
+    "total_queries_with_relevance": 500,
+    "both_find": 437,
+    "vector_only": 53,
+    "bm25_only": 5,
+    "both_miss": 5
+  },
+  "faiss_hnsw_params": [
+    {
+      "variant": "FAISS-HNSW-16",
+      "m": 16,
+      "efConstruction": 200,
+      "efSearch": 64,
+      "metric": "METRIC_INNER_PRODUCT"
+    },
+    {
+      "variant": "FAISS-HNSW-32",
+      "m": 32,
+      "efConstruction": 200,
+      "efSearch": 64,
+      "metric": "METRIC_INNER_PRODUCT"
+    }
+  ]
+}
